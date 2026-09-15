@@ -8,7 +8,9 @@ from agextractor.layout import _centros_por_quantidade
 
 class DeteccaoLinhas(unittest.TestCase):
     def test_quantidade_conhecida_ignora_cabecalho_de_duas_linhas(self):
-        imagem = np.full((899, 1600, 3), 225, dtype=np.uint8)
+        # Tom bege medido nas linhas vazias de uma captura direta do jogo.
+        # Sua saturação não pode ser tratada como faixa colorida de jogador.
+        imagem = np.full((899, 1600, 3), (148, 179, 214), dtype=np.uint8)
 
         # Segunda linha de um cabeçalho denso, próxima da primeira linha real.
         for x in range(710, 1230, 75):
@@ -27,7 +29,7 @@ class DeteccaoLinhas(unittest.TestCase):
         self.assertEqual(41, centros[1] - centros[0])
 
     def test_rejeita_quantidade_sem_evidencia_em_todas_as_linhas(self):
-        imagem = np.full((899, 1600, 3), 225, dtype=np.uint8)
+        imagem = np.full((899, 1600, 3), (148, 179, 214), dtype=np.uint8)
         for y in (278, 319):
             cv2.rectangle(imagem, (250, y - 10), (610, y + 10), (30, 150, 65), -1)
 

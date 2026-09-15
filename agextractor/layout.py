@@ -100,7 +100,10 @@ def _centros_por_quantidade(imagem, quantidade):
 
     tinta_estatisticas = (cinza[:, 690:1250] < 110).sum(axis=1).astype(np.float64)
     tinta_identidade = (cinza[:, 245:690] < 110).sum(axis=1).astype(np.float64)
-    cor_identidade = ((hsv[:, 245:690, 1] > 55) & (hsv[:, 245:690, 2] > 45)).sum(axis=1).astype(np.float64)
+    # O pergaminho bege pode ter saturação próxima de 80, especialmente em
+    # capturas diretas. Um limiar mais alto preserva brasões e faixas dos
+    # jogadores sem transformar todas as linhas vazias em evidência.
+    cor_identidade = ((hsv[:, 245:690, 1] > 95) & (hsv[:, 245:690, 2] > 45)).sum(axis=1).astype(np.float64)
     perfil = tinta_estatisticas + tinta_identidade * .45 + cor_identidade * .70
     janela = np.convolve(perfil, np.ones(17, dtype=np.float64), mode="same")
 
