@@ -7,10 +7,14 @@ da foto do monitor, estrelas de destaque e quatro jogadores em vez de seis.
 ## Funcionamento atual
 
 1. Localiza a borda externa da tabela e corrige a perspectiva dos quatro cantos.
-2. Normaliza a tabela para uma área de trabalho comum, detecta as linhas
-   preenchidas e separa as colunas pelos cabeçalhos.
-3. Confere o número detectado com o informado. Uma divergência interrompe a
-   extração com uma mensagem; linhas vazias não viram jogadores fictícios.
+2. Normaliza a tabela para uma área de trabalho comum e detecta as linhas
+   preenchidas. Quando a quantidade de jogadores já foi informada, procura uma
+   sequência completa no espaçamento esperado e usa também as cores e o texto
+   da área de identificação para não confundir cabeçalhos de duas linhas com
+   jogadores.
+3. Se não houver evidência suficiente em todas as posições informadas, compara
+   a detecção livre com a quantidade esperada e interrompe a extração com uma
+   mensagem; linhas vazias não viram jogadores fictícios.
 4. Remove estrelas de destaque com filtro de tamanho e cor, amplia cada célula
    e compara leituras binarizadas em três escalas. Para números/textos sem
    consenso, pode tentar também segmentação de palavra com margens reduzidas.
@@ -70,7 +74,9 @@ Há uma referência transcrita visualmente das cinco fotos em
 `tests/fixtures/fotos_celular/`. Os testes verificam OCR real, detecção das cinco
 tabelas, quantidade incorreta e localização após redimensionamento para 1280 e
 1920 pixels de largura com margens extras. Os testes de escala validam geometria,
-não a precisão de OCR em todas essas resoluções.
+não a precisão de OCR em todas essas resoluções. Há também regressões sintéticas
+para tabelas de dois jogadores: elas verificam que uma segunda linha de cabeçalho
+não seja contada como participante e que posições vazias continuem rejeitadas.
 
 A localização ainda pressupõe a estrutura de tabela desta tela do jogo. Outros
 temas, cabeçalhos, layouts, rotações fortes, ausência da borda ou pouca nitidez
