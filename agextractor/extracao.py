@@ -128,7 +128,10 @@ def executar_extracao(
             opcoes = {"ao_processar_celula": celula}
             if regioes and regioes.get(nome) is not None:
                 opcoes["pontos_tabela"] = regioes[nome]
-            extraidos[nome] = extrair(str(entradas[nome]), quantidade_jogadores, **opcoes)
+            try:
+                extraidos[nome] = extrair(str(entradas[nome]), quantidade_jogadores, **opcoes)
+            except ValueError as erro:
+                raise ValueError(f"{titulo} → {erro}") from erro
         finally:
             LEITURAS.reset(token)
 

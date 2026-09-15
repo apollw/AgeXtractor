@@ -4,9 +4,14 @@ import argparse
 import json
 import math
 from pathlib import Path
+import sys
 import tempfile
 
 from ..extracao import CATEGORIAS, caminhos_imagens, executar_extracao
+
+
+def _emitir_evento(tipo, **dados):
+    print(json.dumps({"tipo": tipo, **dados}, ensure_ascii=False), file=sys.stderr, flush=True)
 
 
 def _carregar_regioes(caminho):
@@ -42,19 +47,45 @@ def main(argv=None):
         help="JSON opcional com os quatro cantos da tabela em cada imagem.",
     )
     argumentos = parser.parse_args(argv)
-    regioes = _carregar_regioes(argumentos.regioes)
 
-    # O modo servidor não mantém arquivos de saída. O chamador recebe o JSON
-    # por stdout e controla o ciclo de vida das imagens de entrada.
-    with tempfile.TemporaryDirectory(prefix="agextractor-output-") as pasta:
-        resultado = executar_extracao(
-            argumentos.jogadores,
-            caminhos_imagens(argumentos.entrada),
-            Path(pasta) / "resultado.json",
-            regioes=regioes,
+    ultima_etapa = "Preparando as imagens"
+
+    def progresso(evento):
+        nonlocal ultima_etapa
+        ultima_etapa = evento.mensagem
+        _emitir_evento(
+            "progresso",
+            concluidas=evento.concluidas,
+            total=evento.total,
+            percentual=round(evento.percentual, 2),
+            mensagem=evento.mensagem,
         )
+
+    try:
+        regioes = _carregar_regioes(argumentos.regioes)
+
+        # O modo servidor não mantém arquivos de saída. O chamador recebe o JSON
+        # por stdout e controla o ciclo de vida das imagens de entrada.
+        with tempfile.TemporaryDirectory(prefix="agextractor-output-") as pasta:
+            resultado = executar_extracao(
+                argumentos.jogadores,
+                caminhos_imagens(argumentos.entrada),
+                Path(pasta) / "resultado.json",
+                ao_progresso=progresso,
+                regioes=regioes,
+            )
+    except Exception as erro:
+        _emitir_evento(
+            "erro",
+            codigo="FalhaNaExtracao",
+            etapa=ultima_etapa,
+            mensagem=str(erro) or type(erro).__name__,
+        )
+        return 1
+
     print(json.dumps(resultado, ensure_ascii=False))
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
