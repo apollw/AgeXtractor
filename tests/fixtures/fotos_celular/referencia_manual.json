@@ -157,7 +157,7 @@
         "tributo_recebido": 0
       },
       "tecnologia": {
-        "idade_feudal": null,
+            "idade_feudal": "00:12:34",
         "idade_castelos": "00:26:58",
         "idade_imperial": null,
         "mapa_explorado": 42,
