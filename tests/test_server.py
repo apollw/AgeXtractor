@@ -77,6 +77,30 @@ class InterfaceServidor(unittest.TestCase):
             self.assertIn("Tecnologia", erro["mensagem"])
             self.assertNotIn("Traceback", diagnostico.getvalue())
 
+    def test_extrai_somente_a_categoria_solicitada(self):
+        esperado = {
+            "quantidade_jogadores": 2,
+            "categoria": "militar",
+            "jogadores": [{"jogador": 1, "militar": {"unidades_mortas": 12}}],
+        }
+        regioes = {"militar": [[10, 20], [900, 20], [900, 600], [10, 600]]}
+        with tempfile.TemporaryDirectory() as pasta, \
+                patch("agextractor.interfaces.server.executar_categoria", return_value=esperado) as executar, \
+                patch("sys.stdout", new_callable=io.StringIO) as saida:
+            caminho = Path(pasta) / "regioes.json"
+            caminho.write_text(json.dumps(regioes), encoding="utf-8")
+
+            codigo = main([
+                "--entrada", pasta, "--jogadores", "2", "--categoria", "militar",
+                "--regioes", str(caminho),
+            ])
+
+            self.assertEqual(codigo, 0)
+            self.assertEqual(json.loads(saida.getvalue()), esperado)
+            self.assertEqual(executar.call_args.args[:3],
+                             ("militar", 2, Path(pasta) / "militar.jpeg"))
+            self.assertEqual(executar.call_args.kwargs["pontos"], regioes["militar"])
+
 
 if __name__ == "__main__":
     unittest.main()

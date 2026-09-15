@@ -182,3 +182,107 @@ def executar_extracao(
 
     notificar(f"Concluído: {destino.name} salvo", avancar=True)
     return resultado
+
+
+def executar_categoria(
+    categoria,
+    quantidade_jogadores,
+    caminho,
+    ao_progresso=None,
+    cancelado=None,
+    pontos=None,
+):
+    """Extrai uma categoria isoladamente para permitir retomada incremental."""
+    if type(quantidade_jogadores) is not int or not 2 <= quantidade_jogadores <= 8:
+        raise ValueError("Informe uma quantidade inteira de jogadores entre 2 e 8.")
+
+    encontrada = next((item for item in CATEGORIAS if item[0] == categoria), None)
+    if encontrada is None:
+        raise ValueError(f"Categoria desconhecida: {categoria}.")
+    _, titulo, modulo = encontrada
+    entrada = Path(caminho).expanduser().resolve()
+    if not entrada.is_file():
+        raise ValueError(f"Imagem de {titulo} não encontrada.")
+
+    total = quantidade_jogadores * len(modulo.colunas)
+    concluidas = 0
+    inicio = perf_counter()
+    leituras = []
+    leituras_identificadas = {}
+
+    def verificar_cancelamento():
+        if cancelado is not None and cancelado():
+            raise ExtracaoCancelada("Extração cancelada.")
+
+    def notificar(mensagem, avancar=False):
+        nonlocal concluidas
+        if avancar:
+            concluidas += 1
+        if ao_progresso is not None:
+            ao_progresso(EventoProgresso(concluidas, total, mensagem, perf_counter() - inicio))
+
+    def celula(numero_jogador, nome_coluna):
+        verificar_cancelamento()
+        if leituras:
+            leituras_identificadas[(numero_jogador, nome_coluna)] = leituras[-1]
+        notificar(
+            f"{titulo} | jogador {numero_jogador}/{quantidade_jogadores} | {nome_coluna.replace('_', ' ')}",
+            avancar=True,
+        )
+
+    verificar_cancelamento()
+    notificar(f"{titulo} | preparando tabela...")
+    extrair = getattr(modulo, f"extrair_{categoria}")
+    token = LEITURAS.set(leituras)
+    try:
+        opcoes = {"ao_processar_celula": celula}
+        if pontos is not None:
+            opcoes["pontos_tabela"] = pontos
+        try:
+            extraidos = extrair(str(entrada), quantidade_jogadores, **opcoes)
+        except ValueError as erro:
+            raise ValueError(f"{titulo} → {erro}") from erro
+    finally:
+        LEITURAS.reset(token)
+
+    jogadores = [
+        {
+            "jogador": jogador["jogador"],
+            categoria: {campo: valor for campo, valor in jogador.items() if campo != "jogador"},
+        }
+        for jogador in extraidos
+    ]
+    avisos = []
+    for jogador in extraidos:
+        for campo, valor in jogador.items():
+            if campo == "jogador" or valor is not None:
+                continue
+            origem = "tributo" if campo.startswith("tributo_") else campo
+            leitura = leituras_identificadas.get((jogador["jogador"], origem), {})
+            avisos.append({
+                "jogador": jogador["jogador"], "categoria": categoria, "campo": campo,
+                "motivo": "Leitura ausente, inválida ou divergente entre preparações de OCR.",
+                "candidatos": leitura.get("candidatos", []),
+            })
+
+    if categoria == "placar":
+        for jogador in extraidos:
+            if all(isinstance(jogador.get(campo), int) for campo in
+                   ("militar", "economia", "tecnologia", "sociedade", "pontuacao_total")):
+                if sum(jogador[campo] for campo in
+                       ("militar", "economia", "tecnologia", "sociedade")) != jogador["pontuacao_total"]:
+                    avisos.append({
+                        "jogador": jogador["jogador"], "categoria": categoria,
+                        "campo": "pontuacao_total",
+                        "motivo": "A soma das categorias difere da pontuação total. Confira o placar na imagem.",
+                        "candidatos": [],
+                    })
+
+    resultado = {
+        "quantidade_jogadores": quantidade_jogadores,
+        "categoria": categoria,
+        "jogadores": jogadores,
+    }
+    if avisos:
+        resultado["avisos"] = avisos
+    return resultado

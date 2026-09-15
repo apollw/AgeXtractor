@@ -7,22 +7,23 @@ from pathlib import Path
 import sys
 import tempfile
 
-from ..extracao import CATEGORIAS, caminhos_imagens, executar_extracao
+from ..extracao import CATEGORIAS, caminhos_imagens, executar_categoria, executar_extracao
 
 
 def _emitir_evento(tipo, **dados):
     print(json.dumps({"tipo": tipo, **dados}, ensure_ascii=False), file=sys.stderr, flush=True)
 
 
-def _carregar_regioes(caminho):
+def _carregar_regioes(caminho, categorias_esperadas=None):
     if caminho is None:
         return None
 
     with caminho.open(encoding="utf-8") as arquivo:
         documento = json.load(arquivo)
-    categorias = {nome for nome, _, _ in CATEGORIAS}
+    categorias = set(categorias_esperadas or (nome for nome, _, _ in CATEGORIAS))
     if set(documento) != categorias:
-        raise ValueError("As regiões devem informar exatamente as cinco categorias.")
+        esperado = "as cinco categorias" if len(categorias) == len(CATEGORIAS) else f"somente {next(iter(categorias))}"
+        raise ValueError(f"As regiões devem informar exatamente {esperado}.")
 
     regioes = {}
     for categoria, pontos in documento.items():
@@ -46,6 +47,10 @@ def main(argv=None):
         "--regioes", type=Path,
         help="JSON opcional com os quatro cantos da tabela em cada imagem.",
     )
+    parser.add_argument(
+        "--categoria", choices=[nome for nome, _, _ in CATEGORIAS],
+        help="Extrai somente uma categoria e devolve um fragmento incremental.",
+    )
     argumentos = parser.parse_args(argv)
 
     ultima_etapa = "Preparando as imagens"
@@ -62,18 +67,29 @@ def main(argv=None):
         )
 
     try:
-        regioes = _carregar_regioes(argumentos.regioes)
+        categorias = [argumentos.categoria] if argumentos.categoria else None
+        regioes = _carregar_regioes(argumentos.regioes, categorias)
 
-        # O modo servidor não mantém arquivos de saída. O chamador recebe o JSON
-        # por stdout e controla o ciclo de vida das imagens de entrada.
-        with tempfile.TemporaryDirectory(prefix="agextractor-output-") as pasta:
-            resultado = executar_extracao(
+        if argumentos.categoria:
+            categoria = argumentos.categoria
+            resultado = executar_categoria(
+                categoria,
                 argumentos.jogadores,
-                caminhos_imagens(argumentos.entrada),
-                Path(pasta) / "resultado.json",
+                argumentos.entrada / f"{categoria}.jpeg",
                 ao_progresso=progresso,
-                regioes=regioes,
+                pontos=regioes[categoria] if regioes else None,
             )
+        else:
+            # O modo servidor não mantém arquivos de saída. O chamador recebe o JSON
+            # por stdout e controla o ciclo de vida das imagens de entrada.
+            with tempfile.TemporaryDirectory(prefix="agextractor-output-") as pasta:
+                resultado = executar_extracao(
+                    argumentos.jogadores,
+                    caminhos_imagens(argumentos.entrada),
+                    Path(pasta) / "resultado.json",
+                    ao_progresso=progresso,
+                    regioes=regioes,
+                )
     except Exception as erro:
         _emitir_evento(
             "erro",

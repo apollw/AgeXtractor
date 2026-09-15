@@ -140,6 +140,8 @@ python -m agextractor.interfaces.server --entrada "C:\Partida\prints" --jogadore
 
 O modo servidor também aceita `--regioes caminho.json`. O arquivo deve mapear cada uma das cinco categorias para os quatro cantos da tabela, nas coordenadas da imagem original. Isso permite que a interface web reproduza o ajuste de perspectiva da versão Windows sem criar cópias permanentes das capturas.
 
+Com `--categoria militar` (ou outra categoria válida), o servidor processa somente a imagem solicitada e devolve um fragmento JSON identificado por categoria. O AgeNexus usa esse modo para preservar categorias já concluídas e repetir apenas as que falharam.
+
 Em contêiner Linux, instale `requirements-server.txt` e o executável Tesseract. O AgeNexus fixa uma revisão deste repositório durante o build, cria uma pasta isolada por processamento e remove as imagens após a execução. O JSON continua sujeito à revisão humana antes de preencher ou salvar estatísticas.
 
 Arquivos antigos e documentos que já não estavam presentes não foram recriados. Os novos caminhos substituem os imports diretos dos módulos que antes ficavam na raiz.
