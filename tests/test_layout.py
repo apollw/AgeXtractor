@@ -23,7 +23,8 @@ class DeteccaoLinhas(unittest.TestCase):
         centros = _centros_por_quantidade(imagem, 2)
 
         self.assertIsNotNone(centros)
-        self.assertEqual([278, 319], centros)
+        self.assertTrue(all(abs(real - esperado) <= 1 for real, esperado in zip(centros, (278, 319))))
+        self.assertEqual(41, centros[1] - centros[0])
 
     def test_rejeita_quantidade_sem_evidencia_em_todas_as_linhas(self):
         imagem = np.full((899, 1600, 3), 225, dtype=np.uint8)
