@@ -94,7 +94,7 @@ def _centros_por_quantidade(imagem, quantidade):
     nomes e cores recebe peso adicional; assim, um cabeçalho de duas linhas não
     é confundido com mais um jogador.
     """
-    referencias = [round((inicio + fim) / 2) for inicio, fim in gerar_linhas(quantidade)]
+    referencias = [inicio + (fim - inicio) // 2 for inicio, fim in gerar_linhas(quantidade)]
     cinza = cv2.GaussianBlur(cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY), (3, 3), 0)
     hsv = cv2.cvtColor(imagem, cv2.COLOR_BGR2HSV)
 
