@@ -132,7 +132,7 @@ from agextractor.extracao import executar_extracao
 
 ## Execução headless para o AgeNexus
 
-O módulo `agextractor.interfaces.server` executa sem Tkinter e escreve somente o contrato JSON em `stdout`. Ele recebe uma pasta temporária contendo `placar.jpeg`, `militar.jpeg`, `economia.jpeg`, `tecnologia.jpeg` e `sociedade.jpeg`:
+O módulo `agextractor.interfaces.server` executa sem Tkinter e escreve somente o contrato JSON em `stdout`. O progresso e eventuais falhas são emitidos como linhas JSON estruturadas em `stderr`, permitindo que o AgeNexus atualize a interface sem misturar diagnósticos ao resultado. Ele recebe uma pasta temporária contendo `placar.jpeg`, `militar.jpeg`, `economia.jpeg`, `tecnologia.jpeg` e `sociedade.jpeg`:
 
 ```powershell
 python -m agextractor.interfaces.server --entrada "C:\Partida\prints" --jogadores 4
