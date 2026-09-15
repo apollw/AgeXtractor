@@ -1,0 +1,42 @@
+AgeExtractor para Windows x64
+============================
+
+COMO ABRIR
+1. Extraia todo o ZIP para uma pasta de sua escolha.
+2. Abra a pasta AgeExtractor e dê dois cliques em AgeExtractor.exe.
+3. Mantenha a pasta _internal junto do executável. Não copie apenas o EXE.
+
+Não é necessário instalar Python, IDE ou Tesseract. O pacote inclui a interface,
+o Python, o OpenCV, o Tesseract e o modelo de OCR usado pela aplicação.
+
+COMO EXTRAIR
+1. Escolha de 2 a 8 jogadores.
+2. Selecione uma imagem para cada categoria: Placar, Militar, Economia,
+   Tecnologia e Sociedade. Use a mesma partida e a mesma ordem de jogadores.
+3. Escolha onde salvar o arquivo JSON.
+4. Clique em Iniciar extração e acompanhe o progresso na janela.
+
+O destino padrão é a pasta Documentos\AgeExtractor\saida\resultado.json
+do usuário do Windows. A localização real aparece no campo Arquivo de saída.
+Documentos redirecionado para OneDrive também é considerado.
+
+A tabela é localizada e alinhada automaticamente. Use Ajustar tabela para
+conferir os quatro cantos e a prévia das células. Informe o número de jogadores
+visível na partida. Leituras duvidosas ficam como null, com avisos no JSON;
+confira esses campos nas fotos antes de analisar os dados. Fotos desfocadas
+ou dígitos cortados podem exigir uma nova captura.
+
+Cancelar interrompe depois da célula atual e preserva o resultado anterior
+quando a gravação final ainda não ocorreu. Uma conclusão substitui o arquivo
+de saída escolhido. As imagens originais não são modificadas.
+
+Este pacote não inclui prints nem resultados pessoais de partidas.
+
+SUPORTE E ATUALIZAÇÃO
+Para atualizar, extraia a nova versão em outra pasta. Seus resultados ficam
+em Documentos ou no destino escolhido, separados dos arquivos do programa.
+Se a abertura falhar, consulte erro-inicializacao.log em Documentos\AgeExtractor.
+Para remover a aplicação portátil, exclua a pasta que foi extraída do ZIP.
+
+As versões estão em VERSOES.json. Avisos e licenças de componentes acompanham
+as pastas licencas e _internal (incluindo os metadados dos pacotes e tesseract/doc).

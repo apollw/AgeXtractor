@@ -1,0 +1,177 @@
+{
+  "quantidade_jogadores": 4,
+  "jogadores": [
+    {
+      "jogador": 1,
+      "placar": {
+        "militar": 4130,
+        "economia": 4925,
+        "tecnologia": 3975,
+        "sociedade": 260,
+        "pontuacao_total": 13290
+      },
+      "militar": {
+        "unidades_mortas": 233,
+        "unidades_perdidas": 341,
+        "construcoes_destruidas": 2,
+        "construcoes_perdidas": 38,
+        "unidades_convertidas": 0,
+        "maior_exercito": 124
+      },
+      "economia": {
+        "comida": 32811,
+        "madeira": 55583,
+        "pedra": 3393,
+        "ouro": 25119,
+        "lucro_comercial": 9581,
+        "tributo_enviado": 0,
+        "tributo_recebido": 0
+      },
+      "tecnologia": {
+        "idade_feudal": "00:13:56",
+        "idade_castelos": "00:24:56",
+        "idade_imperial": "00:40:18",
+        "mapa_explorado": 31,
+        "pesquisas": 40,
+        "percentual_pesquisas": 50
+      },
+      "sociedade": {
+        "maravilhas": 0,
+        "castelos": 2,
+        "reliquias_capturadas": 0,
+        "ouro_reliquias": 0,
+        "maximo_aldeoes": 164,
+        "sobreviveu": true
+      }
+    },
+    {
+      "jogador": 2,
+      "placar": {
+        "militar": 441,
+        "economia": 1028,
+        "tecnologia": 1931,
+        "sociedade": 0,
+        "pontuacao_total": 3400
+      },
+      "militar": {
+        "unidades_mortas": 16,
+        "unidades_perdidas": 161,
+        "construcoes_destruidas": 0,
+        "construcoes_perdidas": 54,
+        "unidades_convertidas": 1,
+        "maior_exercito": 26
+      },
+      "economia": {
+        "comida": 10895,
+        "madeira": 13305,
+        "pedra": 1751,
+        "ouro": 6884,
+        "lucro_comercial": 3947,
+        "tributo_enviado": 0,
+        "tributo_recebido": 0
+      },
+      "tecnologia": {
+        "idade_feudal": "00:15:22",
+        "idade_castelos": "00:37:32",
+        "idade_imperial": "00:45:20",
+        "mapa_explorado": 37,
+        "pesquisas": 21,
+        "percentual_pesquisas": 30
+      },
+      "sociedade": {
+        "maravilhas": 0,
+        "castelos": 0,
+        "reliquias_capturadas": 0,
+        "ouro_reliquias": 404,
+        "maximo_aldeoes": 80,
+        "sobreviveu": true
+      }
+    },
+    {
+      "jogador": 3,
+      "placar": {
+        "militar": 6906,
+        "economia": 5831,
+        "tecnologia": 4181,
+        "sociedade": 520,
+        "pontuacao_total": 17438
+      },
+      "militar": {
+        "unidades_mortas": 375,
+        "unidades_perdidas": 91,
+        "construcoes_destruidas": 52,
+        "construcoes_perdidas": 0,
+        "unidades_convertidas": 0,
+        "maior_exercito": 120
+      },
+      "economia": {
+        "comida": 29510,
+        "madeira": 20758,
+        "pedra": 1751,
+        "ouro": 21328,
+        "lucro_comercial": 5583,
+        "tributo_enviado": 0,
+        "tributo_recebido": 0
+      },
+      "tecnologia": {
+        "idade_feudal": "00:13:36",
+        "idade_castelos": null,
+        "idade_imperial": "00:41:00",
+        "mapa_explorado": 49,
+        "pesquisas": 44,
+        "percentual_pesquisas": 57
+      },
+      "sociedade": {
+        "maravilhas": 0,
+        "castelos": 4,
+        "reliquias_capturadas": 3,
+        "ouro_reliquias": 2748,
+        "maximo_aldeoes": 86,
+        "sobreviveu": true
+      }
+    },
+    {
+      "jogador": 4,
+      "placar": {
+        "militar": 4722,
+        "economia": 10620,
+        "tecnologia": 4178,
+        "sociedade": 260,
+        "pontuacao_total": 19780
+      },
+      "militar": {
+        "unidades_mortas": 157,
+        "unidades_perdidas": 192,
+        "construcoes_destruidas": 40,
+        "construcoes_perdidas": 2,
+        "unidades_convertidas": 1,
+        "maior_exercito": 158
+      },
+      "economia": {
+        "comida": 33114,
+        "madeira": 39553,
+        "pedra": 3215,
+        "ouro": 31835,
+        "lucro_comercial": 18410,
+        "tributo_enviado": 0,
+        "tributo_recebido": 0
+      },
+      "tecnologia": {
+        "idade_feudal": null,
+        "idade_castelos": "00:26:58",
+        "idade_imperial": null,
+        "mapa_explorado": 42,
+        "pesquisas": 52,
+        "percentual_pesquisas": 62
+      },
+      "sociedade": {
+        "maravilhas": 0,
+        "castelos": 2,
+        "reliquias_capturadas": 2,
+        "ouro_reliquias": 1555,
+        "maximo_aldeoes": 139,
+        "sobreviveu": true
+      }
+    }
+  ]
+}

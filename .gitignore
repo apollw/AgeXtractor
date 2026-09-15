@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+.venv-build/
+build/
+dist/
+.pytest_cache/
+dados/entrada/*.jpeg
+dados/entrada/*.jpg
+dados/entrada/*.png
+dados/entrada/*.bmp
+dados/entrada/*.tif
+dados/entrada/*.tiff
+dados/entrada/*.webp
+dados/saida/*.json
+dados/saida/.*.tmp
