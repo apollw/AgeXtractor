@@ -6,6 +6,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+from .jogadores import gerar_linhas
+
 
 DESTINO = np.float32([[231, 198], [1353, 198], [1353, 655], [231, 655]])
 
@@ -69,6 +71,56 @@ def intervalos(mascara):
     return encontrados
 
 
+def _centros_por_tinta(imagem):
+    """Mantém a detecção livre usada quando a quantidade ainda é desconhecida."""
+    cinza = cv2.GaussianBlur(cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY), (3, 3), 0)
+    contagem = (cinza[238:578, 720:1240] < 100).sum(axis=1)
+    faixas = [(a, b) for a, b in intervalos(contagem > max(6, contagem.max() * .20)) if 3 <= b - a <= 28]
+    return [round(238 + (a + b) / 2) for a, b in faixas]
+
+
+def _sequencia_valida(centros):
+    return 2 <= len(centros) <= 8 and all(
+        28 <= b - a <= 55 for a, b in zip(centros, centros[1:])
+    )
+
+
+def _centros_por_quantidade(imagem, quantidade):
+    """Encaixa a grade conhecida nas linhas ocupadas, ignorando o cabeçalho.
+
+    A correção de perspectiva normaliza a tabela para 1600 x 899. Como o número
+    de jogadores já é informado no fluxo de extração, procuramos o deslocamento
+    vertical que oferece evidência em todas as linhas esperadas. A região dos
+    nomes e cores recebe peso adicional; assim, um cabeçalho de duas linhas não
+    é confundido com mais um jogador.
+    """
+    referencias = [round((inicio + fim) / 2) for inicio, fim in gerar_linhas(quantidade)]
+    cinza = cv2.GaussianBlur(cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY), (3, 3), 0)
+    hsv = cv2.cvtColor(imagem, cv2.COLOR_BGR2HSV)
+
+    tinta_estatisticas = (cinza[:, 690:1250] < 110).sum(axis=1).astype(np.float64)
+    tinta_identidade = (cinza[:, 245:690] < 110).sum(axis=1).astype(np.float64)
+    cor_identidade = ((hsv[:, 245:690, 1] > 55) & (hsv[:, 245:690, 2] > 45)).sum(axis=1).astype(np.float64)
+    perfil = tinta_estatisticas + tinta_identidade * .45 + cor_identidade * .70
+    janela = np.convolve(perfil, np.ones(17, dtype=np.float64), mode="same")
+
+    melhor = None
+    for deslocamento in range(-24, 25):
+        centros = [centro + deslocamento for centro in referencias]
+        evidencias = [janela[centro] for centro in centros]
+        # O menor valor pesa na decisão para impedir que uma linha muito forte
+        # esconda outra vazia ou que o cabeçalho vença sozinho.
+        pontuacao = sum(evidencias) + min(evidencias) * quantidade
+        if melhor is None or pontuacao > melhor[0]:
+            melhor = (pontuacao, centros, evidencias)
+
+    _, centros, evidencias = melhor
+    fundo = np.median(janela[238:578])
+    if min(evidencias) <= max(100, fundo * 1.35):
+        return None
+    return centros
+
+
 @dataclass
 class Tabela:
     imagem: np.ndarray
@@ -97,12 +149,17 @@ def preparar_tabela(caminho, quantidade=None, pontos=None):
         raise ValueError("Os cantos precisam estar dentro da imagem.")
     matriz = cv2.getPerspectiveTransform(pontos, DESTINO)
     alinhada = cv2.warpPerspective(imagem, matriz, (1600, 899), flags=cv2.INTER_CUBIC)
-    cinza = cv2.GaussianBlur(cv2.cvtColor(alinhada, cv2.COLOR_BGR2GRAY), (3, 3), 0)
-    contagem = (cinza[238:578, 720:1240] < 100).sum(axis=1)
-    faixas = [(a, b) for a, b in intervalos(contagem > max(6, contagem.max() * .20)) if 3 <= b - a <= 28]
-    centros = [round(238 + (a + b) / 2) for a, b in faixas]
-    if not 2 <= len(centros) <= 8 or (len(centros) > 1 and any(not 28 <= b - a <= 55 for a, b in zip(centros, centros[1:]))):
+    centros_livres = _centros_por_tinta(alinhada)
+    if quantidade is None:
+        centros = centros_livres
+    elif len(centros_livres) == quantidade and _sequencia_valida(centros_livres):
+        centros = centros_livres
+    else:
+        centros = _centros_por_quantidade(alinhada, quantidade)
+        if centros is None:
+            if _sequencia_valida(centros_livres):
+                raise ValueError(f"Detectei {len(centros_livres)} jogadores na imagem, mas foram informados {quantidade}. Ajuste o número de jogadores ou a região da tabela.")
+            raise ValueError("Não foi possível reconhecer as linhas dos jogadores. Confira o foco da foto e ajuste a tabela.")
+    if not _sequencia_valida(centros):
         raise ValueError("Não foi possível reconhecer as linhas dos jogadores. Confira o foco da foto e ajuste a tabela.")
-    if quantidade is not None and len(centros) != quantidade:
-        raise ValueError(f"Detectei {len(centros)} jogadores na imagem, mas foram informados {quantidade}. Ajuste o número de jogadores ou a região da tabela.")
     return Tabela(alinhada, pontos, [(y - 12, y + 13) for y in centros])
