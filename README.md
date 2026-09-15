@@ -138,6 +138,8 @@ O módulo `agextractor.interfaces.server` executa sem Tkinter e escreve somente 
 python -m agextractor.interfaces.server --entrada "C:\Partida\prints" --jogadores 4
 ```
 
+O modo servidor também aceita `--regioes caminho.json`. O arquivo deve mapear cada uma das cinco categorias para os quatro cantos da tabela, nas coordenadas da imagem original. Isso permite que a interface web reproduza o ajuste de perspectiva da versão Windows sem criar cópias permanentes das capturas.
+
 Em contêiner Linux, instale `requirements-server.txt` e o executável Tesseract. O AgeNexus fixa uma revisão deste repositório durante o build, cria uma pasta isolada por processamento e remove as imagens após a execução. O JSON continua sujeito à revisão humana antes de preencher ou salvar estatísticas.
 
 Arquivos antigos e documentos que já não estavam presentes não foram recriados. Os novos caminhos substituem os imports diretos dos módulos que antes ficavam na raiz.
