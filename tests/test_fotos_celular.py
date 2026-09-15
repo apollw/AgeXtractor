@@ -53,7 +53,8 @@ class FotosCelular(unittest.TestCase):
                         else:
                             self.assertEqual(real[nome][campo], valor)
                             corretos += 1
-        # Três horários têm o último dígito cortado na origem e não são inferidos.
+        # Horários cortados podem continuar nulos com aviso; quando o OCR obtém
+        # consenso suficiente, o valor precisa coincidir com a leitura visual.
         self.assertGreaterEqual(corretos, 110)
         self.assertEqual(eventos[-1].percentual, 100)
         self.assertEqual(len({e.concluidas for e in eventos}), 118)

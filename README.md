@@ -130,4 +130,14 @@ Para importar a função de extração em outro código Python:
 from agextractor.extracao import executar_extracao
 ```
 
+## Execução headless para o AgeNexus
+
+O módulo `agextractor.interfaces.server` executa sem Tkinter e escreve somente o contrato JSON em `stdout`. Ele recebe uma pasta temporária contendo `placar.jpeg`, `militar.jpeg`, `economia.jpeg`, `tecnologia.jpeg` e `sociedade.jpeg`:
+
+```powershell
+python -m agextractor.interfaces.server --entrada "C:\Partida\prints" --jogadores 4
+```
+
+Em contêiner Linux, instale `requirements-server.txt` e o executável Tesseract. O AgeNexus fixa uma revisão deste repositório durante o build, cria uma pasta isolada por processamento e remove as imagens após a execução. O JSON continua sujeito à revisão humana antes de preencher ou salvar estatísticas.
+
 Arquivos antigos e documentos que já não estavam presentes não foram recriados. Os novos caminhos substituem os imports diretos dos módulos que antes ficavam na raiz.
