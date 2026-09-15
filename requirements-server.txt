@@ -1,0 +1,3 @@
+# Variante sem bibliotecas gráficas para contêiner Linux.
+opencv-python-headless>=4.10,<5
+pytesseract>=0.3.10,<0.4
