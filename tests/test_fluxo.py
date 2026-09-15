@@ -6,7 +6,7 @@ import unittest
 from contextlib import ExitStack
 from unittest.mock import patch
 
-from agextractor.extracao import CATEGORIAS, ExtracaoCancelada, executar_extracao
+from agextractor.extracao import CATEGORIAS, ExtracaoCancelada, executar_categoria, executar_extracao
 
 
 class FluxoCompartilhado(unittest.TestCase):
@@ -84,6 +84,25 @@ class FluxoCompartilhado(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "entrada"):
             executar_extracao(6, self.caminhos, self.caminhos["placar"])
         self.assertEqual(self.destino.read_text(), "resultado anterior")
+
+    def test_categoria_isolada_devolve_fragmento_com_progresso(self):
+        eventos = []
+        def simular(caminho, quantidade, ao_processar_celula, pontos_tabela):
+            for numero in range(1, quantidade + 1):
+                for campo in ("unidades_mortas", "unidades_perdidas", "construcoes_destruidas",
+                              "construcoes_perdidas", "unidades_convertidas", "maior_exercito"):
+                    ao_processar_celula(numero, campo)
+            return [{"jogador": numero, "unidades_mortas": numero} for numero in range(1, quantidade + 1)]
+
+        with patch("agextractor.extracao.militar.extrair_militar", side_effect=simular):
+            resultado = executar_categoria(
+                "militar", 2, self.caminhos["militar"], eventos.append,
+                pontos=[[10, 10], [900, 10], [900, 600], [10, 600]],
+            )
+
+        self.assertEqual(resultado["categoria"], "militar")
+        self.assertEqual(resultado["jogadores"][1]["militar"]["unidades_mortas"], 2)
+        self.assertEqual(eventos[-1].percentual, 100)
 
 
 if __name__ == "__main__":
